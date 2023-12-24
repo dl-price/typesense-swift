@@ -7,15 +7,33 @@
 
 import Foundation
 
-
+public struct GroupKey: Codable {
+    public var stringValue: String?
+    public var stringArrayValue: [String]?
+    
+    public init(from decoder: Decoder) {
+        let singleValue = try? decoder.singleValueContainer()
+        self.stringValue = try? singleValue?.decode(String.self)
+        self.stringArrayValue = try? singleValue?.decode([String].self)
+    }
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        if let stringValue {
+            try container.encode(stringValue)
+        } else if let stringArrayValue {
+            try container.encode(stringArrayValue)
+        }
+    }
+}
 
 public struct SearchGroupedHit<T: Codable>: Codable {
 
-    public var groupKey: [String]
+    public var groupKey: [GroupKey]
     /** The documents that matched the search query */
     public var hits: [SearchResultHit<T>]
 
-    public init(groupKey: [String], hits: [SearchResultHit<T>]) {
+    public init(groupKey: [GroupKey], hits: [SearchResultHit<T>]) {
         self.groupKey = groupKey
         self.hits = hits
     }
